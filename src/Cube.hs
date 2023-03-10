@@ -1,4 +1,5 @@
 {-# LANGUAGE TemplateHaskell #-}
+{-# OPTIONS_GHC -Wno-unused-top-binds #-}
 
 module Cube (Sticker (..), Move (..), Direction (..), Place (..), Face, Cube (..), initCube, move) where
 
@@ -30,7 +31,7 @@ type Face =
 
 makeLenses ''Cube
 
-data Direction = Clockwise | AntiClockwise
+data Direction = Clockwise | CounterClockwise
     deriving stock (Eq)
 
 data Move = Move Place Direction
@@ -70,13 +71,29 @@ move (Move place dir) cube = case (place, dir) of
             & legs . _1 . _1 .~ (cube ^. rightArm . _1 . _1)
             & legs . _1 . _2 .~ (cube ^. rightArm . _2 . _1)
             & legs . _1 . _3 .~ (cube ^. rightArm . _3 . _1)
-            & torso . _1 . _1 .~ (cube ^. torso . _3 . _1)
-            & torso . _1 . _2 .~ (cube ^. torso . _2 . _1)
-            & torso . _1 . _3 .~ (cube ^. torso . _1 . _1)
-            & torso . _2 . _1 .~ (cube ^. torso . _3 . _2)
-            & torso . _2 . _2 .~ (cube ^. torso . _2 . _2)
-            & torso . _2 . _3 .~ (cube ^. torso . _1 . _2)
-            & torso . _3 . _1 .~ (cube ^. torso . _3 . _3)
-            & torso . _3 . _2 .~ (cube ^. torso . _2 . _3)
-            & torso . _3 . _3 .~ (cube ^. torso . _1 . _3)
+            & torso %~ rotate Clockwise
     _ -> cube
+
+rotate :: Direction -> Face -> Face
+rotate Clockwise face =
+    face
+        & _1 . _1 .~ (face ^. _3 . _1)
+        & _1 . _2 .~ (face ^. _2 . _1)
+        & _1 . _3 .~ (face ^. _1 . _1)
+        & _2 . _1 .~ (face ^. _3 . _2)
+        & _2 . _2 .~ (face ^. _2 . _2)
+        & _2 . _3 .~ (face ^. _1 . _2)
+        & _3 . _1 .~ (face ^. _3 . _3)
+        & _3 . _2 .~ (face ^. _2 . _3)
+        & _3 . _3 .~ (face ^. _1 . _3)
+rotate CounterClockwise face =
+    face
+        & _1 . _1 .~ (face ^. _1 . _3)
+        & _1 . _2 .~ (face ^. _2 . _3)
+        & _1 . _3 .~ (face ^. _3 . _3)
+        & _2 . _1 .~ (face ^. _1 . _2)
+        & _2 . _2 .~ (face ^. _2 . _2)
+        & _2 . _3 .~ (face ^. _3 . _2)
+        & _3 . _1 .~ (face ^. _1 . _1)
+        & _3 . _2 .~ (face ^. _1 . _2)
+        & _3 . _3 .~ (face ^. _1 . _3)
