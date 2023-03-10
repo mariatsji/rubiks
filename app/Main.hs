@@ -34,7 +34,7 @@ drawUi _ = [ vBox
         feetWidget = fillNine 'W'
 
 appEvent :: BrickEvent () e -> EventM () (MyAppState ()) ()
-appEvent = const $ pure ()
+appEvent = const $ halt
 
 app :: App (MyAppState ()) e ()
 app = App {
