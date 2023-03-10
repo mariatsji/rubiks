@@ -31,7 +31,11 @@ executable rubiks
     build-depends: base
       , brick
       , rubiks
+      , microlens
+      , microlens-mtl
+      , microlens-th
       , relude
+      , vty
     default-extensions:
       BlockArguments
       DataKinds

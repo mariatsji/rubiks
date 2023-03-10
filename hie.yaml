@@ -1,0 +1,7 @@
+cradle:
+  cabal:
+    - path: "app/Main.hs"
+      component: "rubiks:exe:rubiks"
+
+    - path: "src"
+      component: "lib:rubiks"
