@@ -58,6 +58,7 @@ appEvent ev =
     let mov = case ev of
             VtyEvent (EvKey (KChar 'r') _) -> Just $ Move Torso Clockwise
             VtyEvent (EvKey (KChar 'e') _) -> Just $ Move Torso CounterClockwise
+            _ -> Nothing
     in maybe
             halt
             (\m -> do
