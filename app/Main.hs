@@ -58,6 +58,16 @@ appEvent ev =
     let mov = case ev of
             VtyEvent (EvKey (KChar 'r') _) -> Just $ Move Torso Clockwise
             VtyEvent (EvKey (KChar 'e') _) -> Just $ Move Torso CounterClockwise
+            VtyEvent (EvKey (KChar 'f') _) -> Just $ Move Legs Clockwise
+            VtyEvent (EvKey (KChar 'd') _) -> Just $ Move Legs CounterClockwise
+            VtyEvent (EvKey (KChar 'c') _) -> Just $ Move Feet Clockwise
+            VtyEvent (EvKey (KChar 'x') _) -> Just $ Move Feet CounterClockwise
+            VtyEvent (EvKey (KChar 'h') _) -> Just $ Move RightArm Clockwise
+            VtyEvent (EvKey (KChar 'g') _) -> Just $ Move RightArm CounterClockwise
+            VtyEvent (EvKey (KChar 's') _) -> Just $ Move LeftArm Clockwise
+            VtyEvent (EvKey (KChar 'a') _) -> Just $ Move LeftArm CounterClockwise
+            VtyEvent (EvKey (KChar '4') _) -> Just $ Move Head Clockwise
+            VtyEvent (EvKey (KChar '3') _) -> Just $ Move Head CounterClockwise
             _ -> Nothing
     in maybe
             halt

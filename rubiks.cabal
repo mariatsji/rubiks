@@ -69,11 +69,13 @@ library
       DerivingStrategies
       DerivingVia
       GeneralisedNewtypeDeriving
+      ImpredicativeTypes
       LambdaCase
       NumericUnderscores
       NoImplicitPrelude
       OverloadedStrings
       QuasiQuotes
+      RankNTypes
       RecordWildCards
       ScopedTypeVariables
       StandaloneDeriving
