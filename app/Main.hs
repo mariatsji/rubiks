@@ -3,7 +3,7 @@ module Main where
 import Cube
 
 import Brick
-import Graphics.Vty (Attr)
+import Graphics.Vty.Input.Events
 import Graphics.Vty.Attributes (defAttr)
 import Graphics.Vty.Attributes.Color (
     blue,
@@ -25,41 +25,39 @@ drawUi cube =
         ]
     ]
   where
-    fillNine c = hLimit 3 (vLimit 3 (fill c))
-    dummy = fillNine ' '
-    headWidget = fillNine 'R'
-    leftWidget = fillNine 'G'
-    torsoWidget = fillNine 'Y'
-    rightWidget = fillNine 'B'
-    legsWidget = fillNine 'O'
-    feetWidget = fillNine 'W'
+    dummy = hLimit 6 (vLimit 3 (fill ' '))
 
 draw :: Face -> Widget ()
 draw ((a, b, c), (d, e, f), (g, h, i)) =
-    ( withAttr (color a) (str " ")
-        <+> withAttr (color b) (str " ")
-        <+> withAttr (color c) (str " ")
-    )
-        <=> ( withAttr (color d) (str " ")
-                <+> withAttr (color e) (str " ")
-                <+> withAttr (color f) (str " ")
-            )
-        <=> ( withAttr (color g) (str " ")
-                <+> withAttr (color h) (str " ")
-                <+> withAttr (color i) (str " ")
-            )
+    let dra po = withAttr (color po) (str "  ")
+     in ( dra a
+            <+> dra b
+            <+> dra c
+        ) <=>
+        ( dra d
+            <+> dra e
+            <+> dra f
+        ) <=> ( dra g
+            <+> dra h
+            <+> dra i
+        )
   where
     color :: Sticker -> AttrName
-    color = attrName . \case
-        Red -> "red"
-        Green -> "green"
-        Blue -> "blue"
-        Yellow -> "yellow"
-        White -> "white"
-        Orange -> "orange"
+    color =
+        attrName . \case
+            Red -> "red"
+            Green -> "green"
+            Blue -> "blue"
+            Yellow -> "yellow"
+            White -> "white"
+            Orange -> "orange"
 
 appEvent :: BrickEvent () e -> EventM () Cube ()
-appEvent = const halt
+appEvent ev = case ev of
+    VtyEvent (EvKey (KChar 'r') _) -> do
+        cube <- get
+        put (move (Move Torso Clockwise) cube)
+    _ -> halt
 
 app :: App Cube e ()
 app =
@@ -76,7 +74,7 @@ app =
                 , (attrName "green", bg green)
                 , (attrName "white", bg white)
                 , (attrName "yellow", bg yellow)
-                , (attrName "orange", bg $ rgbColor 255 165 0)
+                , (attrName "orange", bg $ rgbColor @Int 255 165 0)
                 ]
         }
 

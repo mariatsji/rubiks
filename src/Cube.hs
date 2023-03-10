@@ -1,6 +1,6 @@
 {-# LANGUAGE TemplateHaskell #-}
 
-module Cube (Sticker (..), Face, Cube (..), initCube) where
+module Cube (Sticker (..), Move (..), Direction (..), Place (..), Face, Cube (..), initCube, move) where
 
 import Lens.Micro
 import Lens.Micro.TH
@@ -38,10 +38,10 @@ data Move = Move Place Direction
 
 allSame :: Sticker -> Face
 allSame c =
-        ( (c, c, c)
-        , (c, c, c)
-        , (c, c, c)
-        )
+    ( (c, c, c)
+    , (c, c, c)
+    , (c, c, c)
+    )
 
 initCube :: Cube
 initCube =
