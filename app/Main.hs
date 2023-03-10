@@ -54,15 +54,18 @@ draw ((a, b, c), (d, e, f), (g, h, i)) =
             Orange -> "orange"
 
 appEvent :: BrickEvent () e -> EventM () Cube ()
-appEvent ev = case ev of
-    VtyEvent (EvKey (KChar 'r') _) -> do
-        cube <- get
-        put (move (Move Torso Clockwise) cube)
-    VtyEvent (EvKey (KChar 'e') _) -> do
-        cube <- get
-        put (move (Move Torso CounterClockwise) cube)
-    _ -> halt
-
+appEvent ev = 
+    let mov = case ev of
+            VtyEvent (EvKey (KChar 'r') _) -> Just $ Move Torso Clockwise
+            VtyEvent (EvKey (KChar 'e') _) -> Just $ Move Torso CounterClockwise
+    in maybe
+            halt
+            (\m -> do
+                cube <- get
+                put (move m cube)
+            )
+            mov
+    
 app :: App Cube e ()
 app =
     App
