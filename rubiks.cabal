@@ -1,0 +1,87 @@
+cabal-version:      3.4
+name:               rubiks
+version:            0.1.0.0
+-- synopsis:
+-- description:
+homepage:           https://github.com/mariatsji/rubiks
+license:            MIT
+license-file:       LICENSE
+author:             Sjur Millidahl
+maintainer:         sjur.millidahl@gmail.com
+-- copyright:
+category:           Game
+build-type:         Simple
+extra-doc-files:    CHANGELOG.md
+-- extra-source-files:
+
+common warnings
+    ghc-options: -Wall
+
+executable rubiks
+    import:           warnings
+    main-is:          Main.hs
+    ghc-options:
+      -O2
+      -Wall
+      -threaded
+      -fprof-auto
+      "-with-rtsopts=-N6"
+      -- other-modules:
+    -- other-extensions:
+    build-depends: base
+      , brick
+      , rubiks
+      , relude
+    default-extensions:
+      BlockArguments
+      DataKinds
+      DeriveAnyClass
+      DeriveGeneric
+      DerivingStrategies
+      DerivingVia
+      GeneralisedNewtypeDeriving
+      LambdaCase
+      NoImplicitPrelude
+      OverloadedStrings
+      QuasiQuotes
+      RecordWildCards
+      ScopedTypeVariables
+      StandaloneDeriving
+      TupleSections
+      TypeApplications
+      TypeFamilies
+      TypeOperators
+    hs-source-dirs:   app
+    default-language: Haskell2010
+
+library
+  ghc-options: -Wall
+  exposed-modules:
+      Cube
+  hs-source-dirs:
+      src
+  default-extensions:
+      BlockArguments
+      DataKinds
+      DeriveAnyClass
+      DeriveGeneric
+      DerivingStrategies
+      DerivingVia
+      GeneralisedNewtypeDeriving
+      LambdaCase
+      NumericUnderscores
+      NoImplicitPrelude
+      OverloadedStrings
+      QuasiQuotes
+      RecordWildCards
+      ScopedTypeVariables
+      StandaloneDeriving
+      TupleSections
+      TypeApplications
+      TypeFamilies
+      TypeOperators
+  build-depends:
+      base
+    , relude
+    , text
+  default-language: Haskell2010
