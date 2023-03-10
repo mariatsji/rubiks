@@ -3,7 +3,6 @@ module Main where
 import Cube
 
 import Brick
-import Graphics.Vty.Input.Events
 import Graphics.Vty.Attributes (defAttr)
 import Graphics.Vty.Attributes.Color (
     blue,
@@ -13,6 +12,7 @@ import Graphics.Vty.Attributes.Color (
     white,
     yellow,
  )
+import Graphics.Vty.Input.Events
 import Relude
 
 drawUi :: Cube -> [Widget ()]
@@ -33,14 +33,15 @@ draw ((a, b, c), (d, e, f), (g, h, i)) =
      in ( dra a
             <+> dra b
             <+> dra c
-        ) <=>
-        ( dra d
-            <+> dra e
-            <+> dra f
-        ) <=> ( dra g
-            <+> dra h
-            <+> dra i
         )
+            <=> ( dra d
+                    <+> dra e
+                    <+> dra f
+                )
+            <=> ( dra g
+                    <+> dra h
+                    <+> dra i
+                )
   where
     color :: Sticker -> AttrName
     color =
@@ -57,6 +58,9 @@ appEvent ev = case ev of
     VtyEvent (EvKey (KChar 'r') _) -> do
         cube <- get
         put (move (Move Torso Clockwise) cube)
+    VtyEvent (EvKey (KChar 'e') _) -> do
+        cube <- get
+        put (move (Move Torso CounterClockwise) cube)
     _ -> halt
 
 app :: App Cube e ()

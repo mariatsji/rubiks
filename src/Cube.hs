@@ -72,6 +72,21 @@ move (Move place dir) cube = case (place, dir) of
             & legs . _1 . _2 .~ (cube ^. rightArm . _2 . _1)
             & legs . _1 . _3 .~ (cube ^. rightArm . _3 . _1)
             & torso %~ rotate Clockwise
+    (Torso, CounterClockwise) ->
+        cube 
+            & head . _3 . _1 .~ (cube ^. rightArm . _1 . _1)
+            & head . _3 . _2 .~ (cube ^. rightArm . _2 . _1)
+            & head . _3 . _3 .~ (cube ^. rightArm . _3 . _1)
+            & leftArm . _3 . _3 .~ (cube ^. head . _3 . _1)
+            & leftArm . _2 . _3 .~ (cube ^. head . _3 . _2)
+            & leftArm . _1 . _3 .~ (cube ^. head . _3 . _3)
+            & rightArm . _1 . _1 .~ (cube ^. legs . _1 . _3)
+            & rightArm . _2 . _1 .~ (cube ^. legs . _1 . _2)
+            & rightArm . _3 . _1 .~ (cube ^. legs . _1 . _1)
+            & legs . _1 . _1 .~ (cube ^. leftArm . _1 . _3)
+            & legs . _1 . _2 .~ (cube ^. leftArm . _2 . _3)
+            & legs . _1 . _3 .~ (cube ^. leftArm . _3 . _3)
+            & torso %~ rotate Clockwise
     _ -> cube
 
 rotate :: Direction -> Face -> Face
