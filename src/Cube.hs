@@ -123,20 +123,18 @@ move (Move place dir) cube =
     let (myUp, myRight, myDown, myLeft, mySelf) = neighbors place
     in case dir of
         Clockwise ->
-            let cachedUp = cube ^. myUp . down . keep
-            in cube
+            cube
                 & myUp . down .~ ( cube ^. myLeft . right . rev )
                 & myLeft . right .~ ( cube ^. myDown . up . keep )
                 & myDown . up .~ ( cube ^. myRight . left . rev )
-                & myRight . left .~ cachedUp
+                & myRight . left .~ ( cube ^. myUp . down . keep )
                 & mySelf %~ rotate Clockwise
         CounterClockwise ->
-            let cachedUp = cube ^. myUp . down . rev
-            in cube
+            cube
                 & myUp . down .~ ( cube ^. myRight . left . keep )
                 & myRight . left .~ ( cube ^. myDown . up . rev )
                 & myDown . up .~ ( cube ^. myLeft . right . keep )
-                & myLeft . right .~ cachedUp
+                & myLeft . right .~ ( cube ^. myUp . down . rev )
                 & mySelf %~ rotate CounterClockwise
 
      
