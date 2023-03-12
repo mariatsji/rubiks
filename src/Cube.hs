@@ -97,7 +97,7 @@ left = lens
 
 right :: Lens' Face (Sticker, Sticker, Sticker)
 right = lens
-    (\(a,_,_,b,_,_,c,_,_) -> (a,b,c))
+    (\(_,_,a,_,_,b,_,_,c) -> (a,b,c))
     (\(a,b,_,d,e,_,g,h,_) (x,y,z) -> (a,b,x,d,e,y,g,h,z))
 
 rev :: SimpleGetter (Sticker, Sticker, Sticker) (Sticker, Sticker, Sticker)
@@ -123,18 +123,20 @@ move (Move place dir) cube =
     let (myUp, myRight, myDown, myLeft, mySelf) = neighbors place
     in case dir of
         Clockwise ->
-            cube
+            let cachedUp = cube ^. myUp . down . keep
+            in cube
                 & myUp . down .~ ( cube ^. myLeft . right . rev )
-                & myRight . left .~ ( cube ^. myUp . down . keep )
-                & myDown . up .~ ( cube ^. myRight . left . rev )
                 & myLeft . right .~ ( cube ^. myDown . up . keep )
+                & myDown . up .~ ( cube ^. myRight . left . rev )
+                & myRight . left .~ cachedUp
                 & mySelf %~ rotate Clockwise
         CounterClockwise ->
-            cube
+            let cachedUp = cube ^. myUp . down . rev
+            in cube
                 & myUp . down .~ ( cube ^. myRight . left . keep )
                 & myRight . left .~ ( cube ^. myDown . up . rev )
                 & myDown . up .~ ( cube ^. myLeft . right . keep )
-                & myLeft . right .~ ( cube ^. myUp . down . rev )
+                & myLeft . right .~ cachedUp
                 & mySelf %~ rotate CounterClockwise
 
      

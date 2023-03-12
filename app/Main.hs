@@ -55,27 +55,57 @@ draw (a, b, c, d, e, f, g, h, i) =
 
 appEvent :: BrickEvent () e -> EventM () Cube ()
 appEvent ev = 
-    let mov = case ev of
-            VtyEvent (EvKey (KChar 'r') _) -> Just $ Move Torso Clockwise
-            VtyEvent (EvKey (KChar 'e') _) -> Just $ Move Torso CounterClockwise
-            VtyEvent (EvKey (KChar 'f') _) -> Just $ Move Legs Clockwise
-            VtyEvent (EvKey (KChar 'd') _) -> Just $ Move Legs CounterClockwise
-            VtyEvent (EvKey (KChar 'c') _) -> Just $ Move Feet Clockwise
-            VtyEvent (EvKey (KChar 'x') _) -> Just $ Move Feet CounterClockwise
-            VtyEvent (EvKey (KChar 'h') _) -> Just $ Move RightArm Clockwise
-            VtyEvent (EvKey (KChar 'g') _) -> Just $ Move RightArm CounterClockwise
-            VtyEvent (EvKey (KChar 's') _) -> Just $ Move LeftArm Clockwise
-            VtyEvent (EvKey (KChar 'a') _) -> Just $ Move LeftArm CounterClockwise
-            VtyEvent (EvKey (KChar '4') _) -> Just $ Move Head Clockwise
-            VtyEvent (EvKey (KChar '3') _) -> Just $ Move Head CounterClockwise
-            _ -> Nothing
-    in maybe
-            halt
-            (\m -> do
-                cube <- get
-                put (move m cube)
-            )
-            mov
+    case ev of
+        VtyEvent (EvKey (KChar 'r') _) -> do
+            let m = Move Torso Clockwise
+            cube <- get
+            put (move m cube)
+        VtyEvent (EvKey (KChar 'e') _) -> do
+            let m = Move Torso CounterClockwise
+            cube <- get
+            put (move m cube)
+        VtyEvent (EvKey (KChar 'f') _) -> do
+            let m = Move Legs Clockwise
+            cube <- get
+            put (move m cube)
+        VtyEvent (EvKey (KChar 'd') _) -> do
+            let m = Move Legs CounterClockwise
+            cube <- get
+            put (move m cube)
+        VtyEvent (EvKey (KChar 'c') _) -> do
+            let m = Move Feet Clockwise
+            cube <- get
+            put (move m cube)
+        VtyEvent (EvKey (KChar 'x') _) -> do
+            let m = Move Feet CounterClockwise
+            cube <- get
+            put (move m cube)
+        VtyEvent (EvKey (KChar 'h') _) -> do
+            let m = Move RightArm Clockwise
+            cube <- get
+            put (move m cube)
+        VtyEvent (EvKey (KChar 'g') _) -> do
+            let m = Move RightArm CounterClockwise
+            cube <- get
+            put (move m cube)
+        VtyEvent (EvKey (KChar 's') _) -> do
+            let m = Move LeftArm Clockwise
+            cube <- get
+            put (move m cube)
+        VtyEvent (EvKey (KChar 'a') _) -> do
+            let m = Move LeftArm CounterClockwise
+            cube <- get
+            put (move m cube)
+        VtyEvent (EvKey (KChar '4') _) -> do
+            let m = Move Head Clockwise
+            cube <- get
+            put (move m cube)
+        VtyEvent (EvKey (KChar '3') _) -> do
+            let m = Move Head CounterClockwise
+            cube <- get
+            put (move m cube)
+        VtyEvent (EvKey (KChar 'q') _) -> halt
+        VtyEvent (EvKey KEsc _) -> put initCube
     
 app :: App Cube e ()
 app =
