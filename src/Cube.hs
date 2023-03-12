@@ -24,9 +24,15 @@ data Cube = Cube
     deriving stock (Eq)
 
 type Face =
-    ( (Sticker, Sticker, Sticker)
-    , (Sticker, Sticker, Sticker)
-    , (Sticker, Sticker, Sticker)
+    ( Sticker
+    , Sticker
+    , Sticker
+    , Sticker
+    , Sticker
+    , Sticker
+    , Sticker
+    , Sticker
+    , Sticker
     )
 
 makeLenses ''Cube
@@ -39,9 +45,15 @@ data Move = Move Place Direction
 
 allSame :: Sticker -> Face
 allSame c =
-    ( (c, c, c)
-    , (c, c, c)
-    , (c, c, c)
+    ( c
+    , c
+    , c
+    , c
+    , c
+    , c
+    , c
+    , c
+    , c
     )
 
 initCube :: Cube
@@ -68,11 +80,73 @@ neighbors = \case
     Legs -> (torso, rightArm, feet, leftArm, feet)
     Feet -> (legs, rightArm, head, leftArm, feet)
 
+down :: Lens' Face (Sticker, Sticker, Sticker)
+down = lens
+    (\(_, _, _, _, _, _, a, b, c) -> (a, b, c))
+    (\(a,b,c,d,e,f,_,_,_) (x,y,z) -> (a,b,c,d,e,f,x,y,z))
+
+up :: Lens' Face (Sticker, Sticker, Sticker)
+up = lens
+    (\(a, b, c, _, _, _, _, _, _) -> (a, b, c))
+    (\(_,_,_,d,e,f,g,h,i) (x,y,z) -> (x,y,z,d,e,f,g,h,i))
+
+left :: Lens' Face (Sticker, Sticker, Sticker)
+left = lens
+    (\(a,_,_,b,_,_,c,_,_) -> (a,b,c))
+    (\(_,b,c,_,e,f,_,g,h) (x,y,z) -> (x,b,c,y,e,f,z,g,h))
+
+right :: Lens' Face (Sticker, Sticker, Sticker)
+right = lens
+    (\(a,_,_,b,_,_,c,_,_) -> (a,b,c))
+    (\(a,b,_,d,e,_,g,h,_) (x,y,z) -> (a,b,x,d,e,y,g,h,z))
+
+rev :: SimpleGetter (Sticker, Sticker, Sticker) (Sticker, Sticker, Sticker)
+rev = to (\(a,b,c) -> (c,b,a))
+
+keep :: SimpleGetter (Sticker, Sticker, Sticker) (Sticker, Sticker, Sticker)
+keep = to id
+
+leftOf :: Place -> Len
+leftOf = (\(_,_,_,x,_) -> x) . neighbors
+
+rightOf :: Place -> Len
+rightOf = (\(_,x,_,_,_) -> x) . neighbors
+    
+upOf :: Place -> Len
+upOf = (\(x,_,_,_,_) -> x) . neighbors
+
+downOf :: Place -> Len
+downOf = (\(_,_,x,_,_) -> x) . neighbors
+
 move :: Move -> Cube -> Cube
-move (Move place dir) cube = 
+move (Move place dir) cube =
     let (myUp, myRight, myDown, myLeft, mySelf) = neighbors place
     in case dir of
         Clockwise ->
+            cube
+                & myUp . down .~ ( cube ^. myLeft . right . rev )
+                & myRight . left .~ ( cube ^. myUp . down . keep )
+                & myDown . up .~ ( cube ^. myRight . left . rev )
+                & myLeft . right .~ ( cube ^. myDown . up . keep )
+                & mySelf %~ rotate Clockwise
+        CounterClockwise ->
+            cube
+                & myUp . down .~ ( cube ^. myRight . left . keep )
+                & myRight . left .~ ( cube ^. myDown . up . rev )
+                & myDown . up .~ ( cube ^. myLeft . right . keep )
+                & myLeft . right .~ ( cube ^. myUp . down . rev )
+                & mySelf %~ rotate CounterClockwise
+
+     
+rotate :: Direction -> Face -> Face
+rotate Clockwise (a,b,c, d,e,f, g,h,i) = (g,d,a ,h,e,b ,i,f,c )
+rotate CounterClockwise (a,b,c, d,e,f, g,h,i) = (c,f,i , b,e,h , g,d,a )
+{--
+move :: Move -> Cube -> Cube
+move (Move place dir) cube =
+    let (myUp, myRight, myDown, myLeft, mySelf) = neighbors place
+     in case dir of
+            Clockwise ->
                 cube
                     & myUp . _3 . _1 .~ (cube ^. myLeft . _3 . _3)
                     & myUp . _3 . _2 .~ (cube ^. myLeft . _2 . _3)
@@ -87,22 +161,21 @@ move (Move place dir) cube =
                     & myDown . _1 . _2 .~ (cube ^. myRight . _2 . _1)
                     & myDown . _1 . _3 .~ (cube ^. myRight . _3 . _1)
                     & mySelf %~ rotate dir
-        CounterClockwise ->
-            cube 
-                & myUp . _3 . _1 .~ (cube ^. myRight . _1 . _1)
-                & myUp . _3 . _2 .~ (cube ^. myRight . _2 . _1)
-                & myUp . _3 . _3 .~ (cube ^. myRight . _3 . _1)
-                & myLeft . _3 . _3 .~ (cube ^. myUp . _3 . _1)
-                & myLeft . _2 . _3 .~ (cube ^. myUp . _3 . _2)
-                & myLeft . _1 . _3 .~ (cube ^. myUp . _3 . _3)
-                & myRight . _1 . _1 .~ (cube ^. myDown . _1 . _3)
-                & myRight . _2 . _1 .~ (cube ^. myDown . _1 . _2)
-                & myRight . _3 . _1 .~ (cube ^. myDown . _1 . _1)
-                & myDown . _1 . _1 .~ (cube ^. myLeft . _1 . _3)
-                & myDown . _1 . _2 .~ (cube ^. myLeft . _2 . _3)
-                & myDown . _1 . _3 .~ (cube ^. myLeft . _3 . _3)
-                & mySelf %~ rotate Clockwise
-    
+            CounterClockwise ->
+                cube
+                    & myUp . _3 . _1 .~ (cube ^. myRight . _1 . _1)
+                    & myUp . _3 . _2 .~ (cube ^. myRight . _2 . _1)
+                    & myUp . _3 . _3 .~ (cube ^. myRight . _3 . _1)
+                    & myLeft . _3 . _3 .~ (cube ^. myUp . _3 . _1)
+                    & myLeft . _2 . _3 .~ (cube ^. myUp . _3 . _2)
+                    & myLeft . _1 . _3 .~ (cube ^. myUp . _3 . _3)
+                    & myRight . _1 . _1 .~ (cube ^. myDown . _1 . _3)
+                    & myRight . _2 . _1 .~ (cube ^. myDown . _1 . _2)
+                    & myRight . _3 . _1 .~ (cube ^. myDown . _1 . _1)
+                    & myDown . _1 . _1 .~ (cube ^. myLeft . _1 . _3)
+                    & myDown . _1 . _2 .~ (cube ^. myLeft . _2 . _3)
+                    & myDown . _1 . _3 .~ (cube ^. myLeft . _3 . _3)
+                    & mySelf %~ rotate Clockwise
 
 rotate :: Direction -> Face -> Face
 rotate Clockwise face =
@@ -127,3 +200,5 @@ rotate CounterClockwise face =
         & _3 . _1 .~ (face ^. _1 . _1)
         & _3 . _2 .~ (face ^. _1 . _2)
         & _3 . _3 .~ (face ^. _1 . _3)
+
+--}

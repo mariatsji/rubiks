@@ -28,7 +28,7 @@ drawUi cube =
     dummy = hLimit 6 (vLimit 3 (fill ' '))
 
 draw :: Face -> Widget ()
-draw ((a, b, c), (d, e, f), (g, h, i)) =
+draw (a, b, c, d, e, f, g, h, i) =
     let dra po = withAttr (color po) (str "  ")
      in ( dra a
             <+> dra b
