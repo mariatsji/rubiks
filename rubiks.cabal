@@ -85,8 +85,7 @@ library
       TypeOperators
   build-depends:
       base
-    , microlens
-    , microlens-th
+    , microlens-platform
     , relude
     , text
   default-language: Haskell2010

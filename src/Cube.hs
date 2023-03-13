@@ -3,8 +3,7 @@
 
 module Cube (Sticker (..), Move (..), Direction (..), Place (..), Face, Cube (..), initCube, move) where
 
-import Lens.Micro
-import Lens.Micro.TH
+import Lens.Micro.Platform
 import Relude hiding (head)
 
 data Sticker = Yellow | Red | Green | White | Orange | Blue
@@ -81,63 +80,84 @@ neighbors = \case
     Feet -> (legs, rightArm, head, leftArm, feet)
 
 down :: Lens' Face (Sticker, Sticker, Sticker)
-down = lens
-    (\(_, _, _, _, _, _, a, b, c) -> (a, b, c))
-    (\(a,b,c,d,e,f,_,_,_) (x,y,z) -> (a,b,c,d,e,f,x,y,z))
+down =
+    lens
+        (\(_, _, _, _, _, _, a, b, c) -> (a, b, c))
+        (\(a, b, c, d, e, f, _, _, _) (x, y, z) -> (a, b, c, d, e, f, x, y, z))
 
 up :: Lens' Face (Sticker, Sticker, Sticker)
-up = lens
-    (\(a, b, c, _, _, _, _, _, _) -> (a, b, c))
-    (\(_,_,_,d,e,f,g,h,i) (x,y,z) -> (x,y,z,d,e,f,g,h,i))
+up =
+    lens
+        (\(a, b, c, _, _, _, _, _, _) -> (a, b, c))
+        (\(_, _, _, d, e, f, g, h, i) (x, y, z) -> (x, y, z, d, e, f, g, h, i))
 
 left :: Lens' Face (Sticker, Sticker, Sticker)
-left = lens
-    (\(a,_,_,b,_,_,c,_,_) -> (a,b,c))
-    (\(_,b,c,_,e,f,_,g,h) (x,y,z) -> (x,b,c,y,e,f,z,g,h))
+left =
+    lens
+        (\(a, _, _, b, _, _, c, _, _) -> (a, b, c))
+        (\(_, b, c, _, e, f, _, g, h) (x, y, z) -> (x, b, c, y, e, f, z, g, h))
 
 right :: Lens' Face (Sticker, Sticker, Sticker)
-right = lens
-    (\(_,_,a,_,_,b,_,_,c) -> (a,b,c))
-    (\(a,b,_,d,e,_,g,h,_) (x,y,z) -> (a,b,x,d,e,y,g,h,z))
+right =
+    lens
+        (\(_, _, a, _, _, b, _, _, c) -> (a, b, c))
+        (\(a, b, _, d, e, _, g, h, _) (x, y, z) -> (a, b, x, d, e, y, g, h, z))
 
 rev :: SimpleGetter (Sticker, Sticker, Sticker) (Sticker, Sticker, Sticker)
-rev = to (\(a,b,c) -> (c,b,a))
+rev = to (\(a, b, c) -> (c, b, a))
 
 keep :: SimpleGetter (Sticker, Sticker, Sticker) (Sticker, Sticker, Sticker)
 keep = to id
 
 leftOf :: Place -> Len
-leftOf = (\(_,_,_,x,_) -> x) . neighbors
+leftOf = (\(_, _, _, x, _) -> x) . neighbors
 
 rightOf :: Place -> Len
-rightOf = (\(_,x,_,_,_) -> x) . neighbors
-    
+rightOf = (\(_, x, _, _, _) -> x) . neighbors
+
 upOf :: Place -> Len
-upOf = (\(x,_,_,_,_) -> x) . neighbors
+upOf = (\(x, _, _, _, _) -> x) . neighbors
 
 downOf :: Place -> Len
-downOf = (\(_,_,x,_,_) -> x) . neighbors
+downOf = (\(_, _, x, _, _) -> x) . neighbors
 
 move :: Move -> Cube -> Cube
 move (Move place dir) cube =
-    let (myUp, myRight, myDown, myLeft, mySelf) = neighbors place
-    in case dir of
-        Clockwise ->
-            cube
-                & myUp . down .~ ( cube ^. myLeft . right . rev )
-                & myLeft . right .~ ( cube ^. myDown . up . keep )
-                & myDown . up .~ ( cube ^. myRight . left . rev )
-                & myRight . left .~ ( cube ^. myUp . down . keep )
-                & mySelf %~ rotate Clockwise
-        CounterClockwise ->
-            cube
-                & myUp . down .~ ( cube ^. myRight . left . keep )
-                & myRight . left .~ ( cube ^. myDown . up . rev )
-                & myDown . up .~ ( cube ^. myLeft . right . keep )
-                & myLeft . right .~ ( cube ^. myUp . down . rev )
-                & mySelf %~ rotate CounterClockwise
+    case place of
+        Torso ->
+            case dir of
+                Clockwise ->
+                    cube
+                        & head . down .~ (cube ^. leftArm . right . rev)
+                        & leftArm . right .~ (cube ^. legs . up . keep)
+                        & legs . up .~ (cube ^. rightArm . left . rev)
+                        & rightArm . left .~ (cube ^. head . down . keep)
+                        & torso %~ rotate Clockwise
+                CounterClockwise ->
+                    cube
+                        & head . down .~ (cube ^. rightArm . left . keep)
+                        & rightArm . left .~ (cube ^. legs . up . rev)
+                        & legs . up .~ (cube ^. leftArm . right . keep)
+                        & leftArm . right .~ (cube ^. head . down . rev)
+                        & torso %~ rotate CounterClockwise
+        Head ->
+            case dir of
+                Clockwise ->
+                    cube
+                        & feet . down .~ (cube ^. leftArm . up . rev)
+                        & leftArm . up .~ (cube ^. torso . up . keep)
+                        & torso . up .~ (cube ^. rightArm . up . keep)
+                        & rightArm . up .~ (cube ^. feet . down . rev)
+                        & head %~ rotate Clockwise
+                CounterClockwise ->
+                    cube
+                        & feet . down .~ (cube ^. rightArm . up . keep)
+                        & rightArm . up .~ (cube ^. torso . up . rev)
+                        & torso . up .~ (cube ^. leftArm . up . keep)
+                        & leftArm . up .~ (cube ^. feet . down . rev)
+                        & head %~ rotate CounterClockwise
+        _ -> cube
 
-     
 rotate :: Direction -> Face -> Face
-rotate Clockwise (a,b,c, d,e,f, g,h,i) = (g,d,a ,h,e,b ,i,f,c )
-rotate CounterClockwise (a,b,c, d,e,f, g,h,i) = (c,f,i , b,e,h , g,d,a )
+rotate Clockwise (a, b, c, d, e, f, g, h, i) = (g, d, a, h, e, b, i, f, c)
+rotate CounterClockwise (a, b, c, d, e, f, g, h, i) = (c, f, i, b, e, h, g, d, a)
