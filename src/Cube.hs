@@ -187,6 +187,23 @@ move (Move place dir) cube =
                         & leftArm . left .~ (cube ^. legs . down . rev)
                         & head . up .~ (cube ^. leftArm . left . keep)
                         & rightArm . right .~ (cube ^. head . up . keep)
+                        & feet %~ rotate CounterClockwise
+        RightArm ->
+            case dir of
+                Clockwise ->
+                    cube
+                        & head . right .~ (cube ^. torso . right . keep)
+                        & torso . right .~ (cube ^. legs . right . keep)
+                        & legs . right .~ (cube ^. feet . right . rev)
+                        & feet . right .~ (cube ^. head . right . rev)
+                        & rightArm %~ rotate Clockwise
+                CounterClockwise ->
+                    cube
+                        & head . right .~ (cube ^. feet . right . rev)
+                        & torso . right .~ (cube ^. head . right . keep)
+                        & legs . right .~ (cube ^. torso . right . keep)
+                        & feet . right .~ (cube ^. legs . right . rev)
+                        & rightArm %~ rotate CounterClockwise
         _ -> cube
 
 rotate :: Direction -> Face -> Face
