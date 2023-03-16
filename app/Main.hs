@@ -106,6 +106,7 @@ appEvent ev =
             put (move m cube)
         VtyEvent (EvKey (KChar 'q') _) -> halt
         VtyEvent (EvKey KEsc _) -> put initCube
+        _ -> pure ()
     
 app :: App Cube e ()
 app =

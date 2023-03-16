@@ -68,17 +68,6 @@ initCube =
 
 type Len = Lens' Cube Face
 
--- up, right, down, left, myself
--- not enough! Also what "stripe" do I set, and what "stripe" do I steal from neighbor! This is one single lens!
-neighbors :: Place -> (Len, Len, Len, Len, Len)
-neighbors = \case
-    Torso -> (head, rightArm, legs, leftArm, torso)
-    Head -> (feet, rightArm, torso, leftArm, head)
-    RightArm -> (head, feet, legs, torso, rightArm)
-    LeftArm -> (head, torso, legs, feet, leftArm)
-    Legs -> (torso, rightArm, feet, leftArm, feet)
-    Feet -> (legs, rightArm, head, leftArm, feet)
-
 down :: Lens' Face (Sticker, Sticker, Sticker)
 down =
     lens
@@ -108,18 +97,6 @@ rev = to (\(a, b, c) -> (c, b, a))
 
 keep :: SimpleGetter (Sticker, Sticker, Sticker) (Sticker, Sticker, Sticker)
 keep = to id
-
-leftOf :: Place -> Len
-leftOf = (\(_, _, _, x, _) -> x) . neighbors
-
-rightOf :: Place -> Len
-rightOf = (\(_, x, _, _, _) -> x) . neighbors
-
-upOf :: Place -> Len
-upOf = (\(x, _, _, _, _) -> x) . neighbors
-
-downOf :: Place -> Len
-downOf = (\(_, _, x, _, _) -> x) . neighbors
 
 move :: Move -> Cube -> Cube
 move (Move place dir) cube =
