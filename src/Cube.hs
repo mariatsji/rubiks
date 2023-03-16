@@ -132,14 +132,13 @@ move (Move place dir) cube =
                         & leftArm . right .~ (cube ^. legs . up . keep)
                         & legs . up .~ (cube ^. rightArm . left . rev)
                         & rightArm . left .~ (cube ^. head . down . keep)
-                        & torso %~ rotate Clockwise
                 CounterClockwise ->
                     cube
                         & head . down .~ (cube ^. rightArm . left . keep)
                         & rightArm . left .~ (cube ^. legs . up . rev)
                         & legs . up .~ (cube ^. leftArm . right . keep)
                         & leftArm . right .~ (cube ^. head . down . rev)
-                        & torso %~ rotate CounterClockwise
+            & torso %~ rotate dir
         Head ->
             case dir of
                 Clockwise ->
@@ -147,31 +146,29 @@ move (Move place dir) cube =
                         & feet . down .~ (cube ^. leftArm . up . rev)
                         & leftArm . up .~ (cube ^. torso . up . keep)
                         & torso . up .~ (cube ^. rightArm . up . keep)
-                        & rightArm . up .~ (cube ^. feet . down . rev)
-                        & head %~ rotate Clockwise
+                        & rightArm . up .~ (cube ^. feet . down . keep)
                 CounterClockwise ->
                     cube
                         & feet . down .~ (cube ^. rightArm . up . keep)
-                        & rightArm . up .~ (cube ^. torso . up . rev)
+                        & rightArm . up .~ (cube ^. torso . up . keep)
                         & torso . up .~ (cube ^. leftArm . up . keep)
                         & leftArm . up .~ (cube ^. feet . down . rev)
-                        & head %~ rotate CounterClockwise
+            & head %~ rotate dir
         Legs ->
             case dir of
                 Clockwise ->
                     cube
-                        & torso . down .~ (cube ^. leftArm . down . rev)
+                        & torso . down .~ (cube ^. leftArm . down . keep)
                         & rightArm . down .~ (cube ^. torso . down . keep)
                         & feet . up .~ (cube ^. rightArm . down . rev)
                         & leftArm . down .~ (cube ^. feet . up . keep)
-                        & legs %~ rotate Clockwise
                 CounterClockwise ->
                     cube
                         & torso . down .~ (cube ^. rightArm . down . keep)
                         & rightArm . down .~ (cube ^. feet . up . rev)
-                        & feet . up .~ (cube ^. leftArm . down . keep)
-                        & leftArm . down .~ (cube ^. torso . down . rev)
-                        & legs %~ rotate CounterClockwise
+                        & feet . up .~ (cube ^. leftArm . down . rev)
+                        & leftArm . down .~ (cube ^. torso . down . keep)
+            & legs %~ rotate dir
         Feet ->
             case dir of
                 Clockwise ->
@@ -180,31 +177,44 @@ move (Move place dir) cube =
                         & leftArm . left .~ (cube ^. head . up . rev)
                         & head . up .~ (cube ^. rightArm . right . rev)
                         & rightArm . right .~ (cube ^. legs . down . keep)
-                        & feet %~ rotate Clockwise
                 CounterClockwise ->
                     cube
                         & legs . down .~ (cube ^. rightArm . right . rev)
                         & leftArm . left .~ (cube ^. legs . down . rev)
                         & head . up .~ (cube ^. leftArm . left . keep)
                         & rightArm . right .~ (cube ^. head . up . keep)
-                        & feet %~ rotate CounterClockwise
+            & feet %~ rotate dir
         RightArm ->
             case dir of
                 Clockwise ->
-                    cube
-                        & head . right .~ (cube ^. torso . right . keep)
-                        & torso . right .~ (cube ^. legs . right . keep)
-                        & legs . right .~ (cube ^. feet . right . rev)
-                        & feet . right .~ (cube ^. head . right . rev)
-                        & rightArm %~ rotate Clockwise
-                CounterClockwise ->
                     cube
                         & head . right .~ (cube ^. feet . right . rev)
                         & torso . right .~ (cube ^. head . right . keep)
                         & legs . right .~ (cube ^. torso . right . keep)
                         & feet . right .~ (cube ^. legs . right . rev)
-                        & rightArm %~ rotate CounterClockwise
-        _ -> cube
+                CounterClockwise ->
+                    cube
+                        & head . right .~ (cube ^. torso . right . keep)
+                        & torso . right .~ (cube ^. legs . right . keep)
+                        & legs . right .~ (cube ^. feet . right . rev)
+                        & feet . right .~ (cube ^. head . right . rev)
+            & rightArm %~ rotate dir
+        LeftArm ->
+            case dir of
+                Clockwise ->
+                        cube
+                        & head . left .~ (cube ^. feet . left . rev)
+                        & torso . left .~ (cube ^. head . left . keep)
+                        & legs . left .~ (cube ^. torso . left . keep)
+                        & feet . left .~ (cube ^. legs . left . keep)
+                CounterClockwise ->
+                        cube 
+                        & head . left .~ (cube ^. torso . left . keep)
+                        & torso . left .~ (cube ^. legs . left . keep)
+                        & legs . left .~ (cube ^. feet . left . keep)
+                        & feet . left .~ (cube ^. head . left . rev)
+            & leftArm %~ rotate dir
+            
 
 rotate :: Direction -> Face -> Face
 rotate Clockwise (a, b, c, d, e, f, g, h, i) = (g, d, a, h, e, b, i, f, c)
