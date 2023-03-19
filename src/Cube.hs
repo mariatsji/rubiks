@@ -1,16 +1,26 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# OPTIONS_GHC -Wno-unused-top-binds #-}
 
-module Cube (Sticker (..), Move (..), Direction (..), Place (..), Face, Cube (..), initCube, move) where
+module Cube (Sticker (..), Move (..), Direction (..), Place (..), Face, Cube (..), initCube, fromMoves, move) where
 
 import Lens.Micro.Platform
 import Relude hiding (head)
+import qualified Text.Show
 
 data Sticker = Yellow | Red | Green | White | Orange | Blue
     deriving stock (Eq)
 
 data Place = Head | Torso | LeftArm | RightArm | Legs | Feet
     deriving stock (Eq)
+
+instance Show Place where
+    show Torso = "F"
+    show RightArm = "R"
+    show LeftArm = "L"
+    show Head = "U"
+    show Feet = "B"
+    show Legs = "D"
+
 
 data Cube = Cube
     { _head :: Face
@@ -39,8 +49,15 @@ makeLenses ''Cube
 data Direction = Clockwise | CounterClockwise
     deriving stock (Eq)
 
+instance Show Direction where
+    show Clockwise = ""
+    show CounterClockwise = "'"
+
 data Move = Move Place Direction
     deriving stock (Eq)
+
+instance Show Move where
+    show (Move place dir) = show place <> show dir
 
 allSame :: Sticker -> Face
 allSame c =
@@ -58,13 +75,16 @@ allSame c =
 initCube :: Cube
 initCube =
     Cube
-        { _head = allSame Red
-        , _torso = allSame Yellow
-        , _rightArm = allSame Blue
-        , _leftArm = allSame Green
-        , _legs = allSame Orange
-        , _feet = allSame White
+        { _head = allSame White
+        , _torso = allSame Green
+        , _rightArm = allSame Red
+        , _leftArm = allSame Orange
+        , _legs = allSame Yellow
+        , _feet = allSame Blue
         }
+
+fromMoves :: [Move] -> Cube
+fromMoves = foldl' (flip move) initCube
 
 type Len = Lens' Cube Face
 
@@ -185,13 +205,13 @@ move (Move place dir) cube =
                         & legs . left .~ (cube ^. torso . left . keep)
                         & feet . left .~ (cube ^. legs . left . keep)
                 CounterClockwise ->
-                        cube 
+                        cube
                         & head . left .~ (cube ^. torso . left . keep)
                         & torso . left .~ (cube ^. legs . left . keep)
                         & legs . left .~ (cube ^. feet . left . keep)
                         & feet . left .~ (cube ^. head . left . rev)
             & leftArm %~ rotate dir
-            
+
 
 rotate :: Direction -> Face -> Face
 rotate Clockwise (a, b, c, d, e, f, g, h, i) = (g, d, a, h, e, b, i, f, c)

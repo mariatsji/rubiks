@@ -1,8 +1,10 @@
 module Main where
 
 import Cube
+import Parser
 
 import Brick
+import qualified Data.Text.IO as TIO
 import Graphics.Vty.Attributes (defAttr)
 import Graphics.Vty.Attributes.Color (
     blue,
@@ -129,4 +131,12 @@ app =
 
 main :: IO ()
 main = do
-    void $ defaultMain app initCube
+    args <- getArgs
+    case args of
+        [] ->  void $ defaultMain app initCube
+        (file:_) -> do
+            t <- TIO.readFile file
+            case movesFromText t of
+                Left e -> putStrLn e
+                Right ms -> void $ defaultMain app (fromMoves ms)
+        

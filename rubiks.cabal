@@ -59,6 +59,7 @@ library
   ghc-options: -Wall
   exposed-modules:
       Cube
+      Parser
   hs-source-dirs:
       src
   default-extensions:
@@ -85,6 +86,7 @@ library
       TypeOperators
   build-depends:
       base
+    , attoparsec
     , microlens-platform
     , relude
     , text
