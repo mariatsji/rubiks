@@ -27,23 +27,34 @@ drawUi cube =
         ]
     ]
   where
-    dummy = hLimit 6 (vLimit 3 (fill ' '))
+    dummy = ( face
+            <+> face
+            <+> face
+        ) <=> ( face
+            <+> face
+            <+> face
+        ) <=> ( face
+            <+> face
+            <+> face
+        )
+
+
+face :: Widget ()
+face = hLimit 6 (vLimit 3 (fill ' '))
 
 draw :: Face -> Widget ()
 draw (a, b, c, d, e, f, g, h, i) =
-    let dra po = withAttr (color po) (str "  ")
+    let dra po = withAttr (color po) face
      in ( dra a
             <+> dra b
             <+> dra c
+        ) <=> ( dra d
+            <+> dra e
+            <+> dra f
+        ) <=> ( dra g
+            <+> dra h
+            <+> dra i
         )
-            <=> ( dra d
-                    <+> dra e
-                    <+> dra f
-                )
-            <=> ( dra g
-                    <+> dra h
-                    <+> dra i
-                )
   where
     color :: Sticker -> AttrName
     color =
